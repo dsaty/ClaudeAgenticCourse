@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Claude Chat Bot</title>
+  </head>
+  <body>
+    <div class="app">
+      <header class="settings">
+        <h1>Claude Chat Bot</h1>
+
+        <label class="field">
+          <span>Model</span>
+          <select id="model"></select>
+        </label>
+
+        <label class="field key-field">
+          <span>Claude API key</span>
+          <div class="key-wrap">
+            <input
+              id="api-key"
+              type="password"
+              placeholder="sk-ant-..."
+              autocomplete="off"
+              spellcheck="false"
+            />
+            <button id="toggle-key" type="button" class="eye" aria-label="Show API key" title="Show API key">
+              <!-- icon swapped in by main.js -->
+            </button>
+          </div>
+        </label>
+
+        <button id="clear" type="button" class="secondary">New chat</button>
+      </header>
+
+      <main id="messages" class="messages">
+        <div class="empty">Pick a model, paste your API key, and say hello.</div>
+      </main>
+
+      <form id="composer" class="composer">
+        <textarea id="input" rows="1" placeholder="Type a message... (Enter to send, Shift+Enter for a new line)"></textarea>
+        <button id="send" type="submit">Send</button>
+      </form>
+    </div>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
