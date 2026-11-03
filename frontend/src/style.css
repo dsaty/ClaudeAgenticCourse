@@ -167,6 +167,24 @@ button.secondary {
   font-size: 0.9rem;
 }
 
+.bubble.tool {
+  align-self: flex-start;
+  background: transparent;
+  border: 1px dashed var(--border);
+  color: var(--muted);
+  font-family: ui-monospace, Consolas, monospace;
+  font-size: 0.82rem;
+}
+
+.bubble.tool-error { color: var(--error-text); }
+
+.bubble.notice {
+  align-self: center;
+  color: var(--muted);
+  font-size: 0.85rem;
+  font-style: italic;
+}
+
 .bubble.typing:empty::after {
   content: "Thinking...";
   color: var(--muted);
