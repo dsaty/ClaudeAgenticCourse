@@ -39,5 +39,12 @@ https://platform.claude.com/settings/keys) and start chatting.
   to the browser through a `StreamingResponse`, and the browser reads it chunk by chunk.
 - **Refusal fallbacks.** For Opus 5.5 / Sonnet 5.5 / Fable 5.1 the backend sets
   `fallbacks="default"`, so the API reruns a declined request on another model.
+- **Tools (the agent loop).** `backend/tools.py` defines `get_latest_stock_price(stock_name)`
+  (live prices via `yfinance`). Claude replies with a `tool_use` block, the backend runs the
+  function, sends back a `tool_result`, and loops until Claude gives a final answer. The UI
+  shows each tool call as a dashed bubble. Try: "What's the price of Apple and Microsoft?"
+- **Full history round-trip.** The backend returns the whole conversation in API format
+  (including tool calls and thinking blocks) and the browser sends it back unchanged next
+  turn, so Claude remembers the tool results it saw.
 - **The API key** goes from the browser to your local backend in each request. It isn't stored
   anywhere.

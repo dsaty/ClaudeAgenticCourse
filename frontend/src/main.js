@@ -71,11 +71,47 @@ async function sendMessage() {
   input.value = "";
   autoGrow();
   addBubble("user", text);
-  history.push({ role: "user", content: text });
+  const outgoing = [...history, { role: "user", content: text }];
 
-  const reply = addBubble("assistant");
+  // The assistant's reply can be split into several bubbles: text, then a
+  // tool call, then more text once the tool result is back.
+  let reply = addBubble("assistant");
   reply.classList.add("typing");
+  const toolBubbles = {};
+  let finished = false;
   setBusy(true);
+
+  function handleEvent(ev) {
+    if (ev.type === "text") {
+      if (!reply) reply = addBubble("assistant");
+      reply.classList.remove("typing");
+      reply.textContent += ev.text;
+    } else if (ev.type === "tool_call") {
+      if (reply && !reply.textContent) reply.remove();
+      reply = null;
+      const args = Object.entries(ev.input || {})
+        .map(([k, v]) => `${k}: ${JSON.stringify(v)}`)
+        .join(", ");
+      toolBubbles[ev.id] = addBubble("tool", `🔧 ${ev.name}(${args})\n⏳ running...`);
+    } else if (ev.type === "tool_result") {
+      const bubble = toolBubbles[ev.id];
+      if (bubble) {
+        const firstLine = bubble.textContent.split("\n")[0];
+        bubble.textContent = `${firstLine}\n${ev.is_error ? "⚠️" : "✅"} ${formatToolOutput(ev.output)}`;
+        if (ev.is_error) bubble.classList.add("tool-error");
+      }
+      reply = addBubble("assistant");
+      reply.classList.add("typing");
+    } else if (ev.type === "notice") {
+      addBubble("notice", ev.text);
+    } else if (ev.type === "error") {
+      throw new Error(ev.text);
+    } else if (ev.type === "done") {
+      history = ev.messages; // the full conversation, tool calls included
+      finished = true;
+    }
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+  }
 
   try {
     const res = await fetch("/api/chat", {
@@ -84,7 +120,7 @@ async function sendMessage() {
       body: JSON.stringify({
         api_key: keyInput.value,
         model: modelSelect.value,
-        messages: history,
+        messages: outgoing,
       }),
     });
 
@@ -93,33 +129,40 @@ async function sendMessage() {
       throw new Error(err.detail || `Request failed (${res.status})`);
     }
 
-    // Read the streamed response chunk by chunk so text appears as it's written.
+    // The backend streams one JSON event per line. Read chunk by chunk and
+    // handle each complete line as soon as it arrives.
     const reader = res.body.getReader();
     const decoder = new TextDecoder();
-    let full = "";
+    let buffer = "";
     while (true) {
       const { done, value } = await reader.read();
       if (done) break;
-      full += decoder.decode(value, { stream: true });
-      reply.textContent = full;
-      messagesEl.scrollTop = messagesEl.scrollHeight;
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split("\n");
+      buffer = lines.pop(); // keep any partial line for the next chunk
+      for (const line of lines) {
+        if (line.trim()) handleEvent(JSON.parse(line));
+      }
     }
-
-    if (full.startsWith("[Error]")) {
-      reply.className = "bubble error";
-      history.pop(); // drop the failed user turn so the user can retry
-    } else {
-      history.push({ role: "assistant", content: full });
-    }
+    if (!finished) throw new Error("The connection ended before the reply finished.");
   } catch (e) {
-    reply.className = "bubble error";
-    reply.textContent = e.message;
-    history.pop();
+    // history is left unchanged, so the user can simply retry.
+    addBubble("error", e.message);
   } finally {
-    reply.classList.remove("typing");
+    if (reply && !reply.textContent) reply.remove();
     setBusy(false);
     input.focus();
   }
+}
+
+function formatToolOutput(output) {
+  try {
+    const d = JSON.parse(output);
+    if (d.price !== undefined) return `${d.name} (${d.symbol}): ${d.price} ${d.currency} on ${d.exchange}`;
+  } catch {
+    // not JSON: show as-is
+  }
+  return output;
 }
 
 form.addEventListener("submit", (e) => {
