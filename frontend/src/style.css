@@ -1,0 +1,187 @@
+:root {
+  --bg: #f6f5f1;
+  --panel: #ffffff;
+  --text: #1f1e1c;
+  --muted: #6b6963;
+  --border: #e2e0d9;
+  --accent: #c96442;
+  --accent-text: #ffffff;
+  --user-bg: #c96442;
+  --user-text: #ffffff;
+  --bot-bg: #ffffff;
+  --error-bg: #fdecea;
+  --error-text: #a12a1a;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  color-scheme: light dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1c1b19;
+    --panel: #262522;
+    --text: #ecebe6;
+    --muted: #a09e97;
+    --border: #3a3935;
+    --bot-bg: #2e2d2a;
+    --error-bg: #3d1f1a;
+    --error-text: #ffb4a6;
+  }
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 16px;
+  gap: 12px;
+}
+
+/* ---- Settings bar ---- */
+.settings {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 12px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px 16px;
+}
+
+.settings h1 {
+  flex-basis: 100%;
+  margin: 0 0 4px;
+  font-size: 1.15rem;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.key-field { flex: 1; min-width: 220px; }
+
+select, input, textarea {
+  font: inherit;
+  font-size: 0.95rem;
+  color: var(--text);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 10px;
+}
+
+select:focus, input:focus, textarea:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: -1px;
+}
+
+.key-wrap { position: relative; display: flex; }
+.key-wrap input { flex: 1; padding-right: 42px; font-family: ui-monospace, Consolas, monospace; }
+
+.eye {
+  position: absolute;
+  right: 4px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  padding: 6px;
+  cursor: pointer;
+  display: flex;
+}
+.eye:hover { color: var(--text); }
+
+button {
+  font: inherit;
+  cursor: pointer;
+  border-radius: 8px;
+  border: none;
+  padding: 9px 16px;
+  background: var(--accent);
+  color: var(--accent-text);
+}
+button:disabled { opacity: 0.6; cursor: default; }
+button.secondary {
+  background: transparent;
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+
+/* ---- Messages ---- */
+.messages {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 4px;
+}
+
+.empty {
+  margin: auto;
+  color: var(--muted);
+}
+
+.bubble {
+  max-width: 80%;
+  padding: 10px 14px;
+  border-radius: 14px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+.bubble.user {
+  align-self: flex-end;
+  background: var(--user-bg);
+  color: var(--user-text);
+  border-bottom-right-radius: 4px;
+}
+
+.bubble.assistant {
+  align-self: flex-start;
+  background: var(--bot-bg);
+  border: 1px solid var(--border);
+  border-bottom-left-radius: 4px;
+}
+
+.bubble.error {
+  align-self: center;
+  background: var(--error-bg);
+  color: var(--error-text);
+  font-size: 0.9rem;
+}
+
+.bubble.typing:empty::after {
+  content: "Thinking...";
+  color: var(--muted);
+  font-style: italic;
+}
+
+/* ---- Composer ---- */
+.composer {
+  display: flex;
+  gap: 8px;
+  align-items: flex-end;
+}
+
+.composer textarea {
+  flex: 1;
+  resize: none;
+  max-height: 200px;
+}
