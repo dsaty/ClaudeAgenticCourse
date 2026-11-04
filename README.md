@@ -43,6 +43,11 @@ https://platform.claude.com/settings/keys) and start chatting.
   (live prices via `yfinance`). Claude replies with a `tool_use` block, the backend runs the
   function, sends back a `tool_result`, and loops until Claude gives a final answer. The UI
   shows each tool call as a dashed bubble. Try: "What's the price of Apple and Microsoft?"
+- **`get_historical_stock_prices(stock_name, interval, date_range)`** returns one closing price
+  per `interval` (`1h`, `1d`, `1wk`, `1mo`, `3mo`) over the last `date_range` (`5d` … `10y`,
+  `ytd`, `max`). Enums in the schema keep Claude's inputs valid; results are capped at 500
+  points, and the error tells Claude to retry with a coarser interval.
+  Try: "How has Tesla done over the past 2 years, monthly?"
 - **Full history round-trip.** The backend returns the whole conversation in API format
   (including tool calls and thinking blocks) and the browser sends it back unchanged next
   turn, so Claude remembers the tool results it saw.
