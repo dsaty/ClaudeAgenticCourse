@@ -159,6 +159,12 @@ function formatToolOutput(output) {
   try {
     const d = JSON.parse(output);
     if (d.price !== undefined) return `${d.name} (${d.symbol}): ${d.price} ${d.currency} on ${d.exchange}`;
+    if (d.closes?.length) {
+      const first = d.closes[0];
+      const last = d.closes[d.closes.length - 1];
+      return `${d.name} (${d.symbol}): ${d.count} closes every ${d.interval}, ` +
+        `${first.date} → ${last.date}, ${first.close} → ${last.close} ${d.currency}`;
+    }
   } catch {
     // not JSON: show as-is
   }
